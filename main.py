@@ -6,6 +6,7 @@ import cv2
 import yolo
 import conventional
 import threading
+import svm
 
 selected_processing_function = "yolo"
 uploaded_file_path = None
@@ -99,7 +100,7 @@ video_thread = threading.Thread(target=process_video, daemon=True, args=(event,)
 
 
 def process_image():
-    global uploaded_file_path
+    global uploaded_file_path, class_label
     if not uploaded_file_path:
         return
 
@@ -109,8 +110,21 @@ def process_image():
 
     resized_original = resize(original, width=350)
 
+    if selected_processing_function != "svm" and 'class_label' in globals():
+        class_label.destroy()
+        del class_label
+
     if selected_processing_function == "yolo":
         processed_image = yolo.yolo(original)
+    elif selected_processing_function == "svm":
+        if 'class_label' not in globals():
+            class_label = tk.Label(root, text="")
+            class_label.config(font=("Courier", 20))
+            class_label.pack(pady=20)
+
+        class_res=svm.svm(original)
+        class_label.config(text=f'Class: {class_res}')
+        processed_image = original
     else:
         processed_image = conventional.get_vehicle(original)
 
@@ -157,6 +171,7 @@ if __name__ == "__main__":
 
     tk.Radiobutton(radio_frame, text="YOLO", variable=processing_var, value="yolo", command=set_process).grid(row=0, column=1, padx=5)
     tk.Radiobutton(radio_frame, text="Conventional", variable=processing_var, value="conventional", command=set_process).grid(row=0, column=2, padx=5)
+    tk.Radiobutton(radio_frame, text="SVM", variable=processing_var, value="svm", command=set_process).grid(row=0, column=3, padx=5)
 
     original_label = Label(root, text="Original Image")
     original_label.place(x=20, y=50)
@@ -164,4 +179,5 @@ if __name__ == "__main__":
     processed_label = Label(root, text="Processed Image")
     processed_label.place(x=window_width//2, y=(window_height+window_height//3)//2, anchor="center")
 
+    
     root.mainloop()

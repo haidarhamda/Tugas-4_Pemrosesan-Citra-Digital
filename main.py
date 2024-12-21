@@ -4,6 +4,7 @@ from tkinter import Label
 from PIL import Image, ImageTk
 import cv2
 import yolo
+import conventional
 
 selected_processing_function = "yolo"
 uploaded_file_path = None
@@ -42,8 +43,10 @@ def process_image():
 
     if selected_processing_function == "yolo":
         processed_image = yolo.yolo(original)
-        processed_image = resize(processed_image, width=900)
+    else:
+        processed_image = conventional.get_vehicle(original)
 
+    processed_image = resize(processed_image, width=900)
     original_rgb = cv2.cvtColor(resized_original, cv2.COLOR_BGR2RGB)
     original_pil = Image.fromarray(original_rgb)
 
@@ -76,6 +79,7 @@ if __name__ == "__main__":
     radio_frame.pack(pady=10)
 
     tk.Radiobutton(radio_frame, text="YOLO", variable=processing_var, value="yolo", command=set_process).grid(row=0, column=1, padx=5)
+    tk.Radiobutton(radio_frame, text="Conventional", variable=processing_var, value="conventional", command=set_process).grid(row=0, column=2, padx=5)
 
     original_label = Label(root, text="Original Image")
     original_label.place(x=20, y=50)

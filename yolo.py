@@ -2,10 +2,11 @@ import cv2
 from ultralytics import YOLO
 import random
 
+yolo_model = YOLO("yolov5s.pt")
+
 def yolo(image):
-    yolo = YOLO('yolov8s.pt')
     r,g,b=random.randint(0,255),random.randint(0,255),random.randint(0,255)
-    results=yolo.predict(image)
+    results=yolo_model.predict(image)
     for result in results:
         classes_names = result.names
         for box in result.boxes:

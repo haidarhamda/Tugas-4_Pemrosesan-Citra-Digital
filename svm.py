@@ -1,11 +1,14 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn import svm
+from sklearn.svm import SVC
 import pickle
 import os
 import cv2
 from sklearn.preprocessing import LabelEncoder
+
+INPUT_FILE = "processed_data.csv"
+MODEL_FILE = "svm_model.pkl"
 
 def load_data(input_file):
     df = pd.read_csv(input_file, header=0)
@@ -27,9 +30,11 @@ def load_model(model_file):
 
 def train_or_load_model(x_train, y_train, model_file):
     if os.path.exists(model_file):
+        print(f"Loading model from {model_file}")
         return load_model(model_file)
     else:
-        clf = svm.SVC()
+        print(f"Training model and saving to {model_file}")
+        clf = SVC(probability=True)
         clf.fit(x_train, y_train)
         save_model(clf, model_file)
         return clf
@@ -37,9 +42,6 @@ def train_or_load_model(x_train, y_train, model_file):
 def evaluate_model(model, x_test, y_test):
     score = model.score(x_test, y_test)
     print(f"Model accuracy: {score}")
-
-INPUT_FILE = "processed_data.csv"
-MODEL_FILE = "svm_model.pkl"
 
 def svm(image):
     (x_train, x_test, y_train, y_test), label_encoder = load_data(INPUT_FILE)
@@ -50,9 +52,12 @@ def svm(image):
     edges = cv2.Canny(resized_image, 100, 200)
     
     edge_vector = edges.flatten()
-    res = label_encoder.inverse_transform(model.predict(edge_vector.reshape(1, -1)))
+    predict_res= model.predict(edge_vector.reshape(1, -1))
+    predict_proba = model.predict_proba(edge_vector.reshape(1, -1))
+    print(str(predict_res)+" "+str(predict_proba))
+    res = label_encoder.inverse_transform(predict_res)
     print(res)
-    return res[0]
+    return res[0]+" "+"{:.2f}".format(max(predict_proba[0]))
 
 if __name__ == "__main__":
     (x_train, x_test, y_train, y_test), label_encoder = load_data(INPUT_FILE)
@@ -64,4 +69,5 @@ if __name__ == "__main__":
     edges = cv2.Canny(resized_image, 100, 200)
     
     edge_vector = edges.flatten()
-    print(label_encoder.inverse_transform(model.predict(edge_vector.reshape(1, -1))))
+    # print(label_encoder.inverse_transform(model.predict(edge_vector.reshape(1, -1))))
+    print(model.predict_proba(edge_vector.reshape(1, -1)))

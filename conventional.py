@@ -39,22 +39,26 @@ def get_vehicle(image: np.ndarray) -> np.ndarray:
     return image
 
 
-if __name__ == '__main__':
-    # video = cv2.VideoCapture('dataset_video1.avi')
-    # while True:
-    #     ret, frame = video.read()
-    #     if not ret:
-    #         break
-    #     cv2.imshow('Vehicle Detection', get_vehicle(frame))
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
-    #
-    # video.release()
-    # cv2.destroyAllWindows()
-    img = cv2.imread('car.jpg')
-    if img is None:
-        exit(1)
-    # cv2.imshow('edge', get_edge(img))
-    cv2.imshow('Vehicle Detection', get_vehicle(img))
-    cv2.waitKey(0)
+def get_vehicle_video(video: cv2.VideoCapture) -> None:
+    while True:
+        ret, frame = video.read()
+        if not ret:
+            break
+        cv2.imshow('Vehicle Detection', get_vehicle(frame))
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    video.release()
     cv2.destroyAllWindows()
+
+
+if __name__ == '__main__':
+    video = cv2.VideoCapture('dataset_video1.avi')
+    get_vehicle_video(video)
+    # img = cv2.imread('car.jpg')
+    # if img is None:
+    #     exit(1)
+    # # cv2.imshow('edge', get_edge(img))
+    # cv2.imshow('Vehicle Detection', get_vehicle(img))
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
